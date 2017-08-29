@@ -6,12 +6,15 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import main.Const;
+
+import static main.Const.*;
 
 /**
  * Обеспечивает работу программы в режиме сервера
@@ -35,7 +38,7 @@ public class Server {
 	 */
 	public Server() {
 		try {
-			server = new ServerSocket(Const.Port);
+			server = new ServerSocket(Const.PORT);
 
 			while (true) {
 				Socket socket = server.accept();
@@ -132,20 +135,27 @@ public class Server {
 				synchronized(connections) {
 					Iterator<Connection> iter = connections.iterator();
 					while(iter.hasNext()) {
-						((Connection) iter.next()).out.println(name + " cames now");
+						(iter.next()).out.println(ANSI_YELLOW + name + " заходит в чат" + ANSI_RESET);
 					}
 				}
 
-				String str = "";
+				String message = "";
 				while (true) {
-					str = in.readLine();
-					if(str.equals("exit")) break;
+					try {
+                        message = in.readLine();
+                    } catch (SocketException e){
+					    break;
+                    }
+					if(message.equals(EXIT_CODE)) break;
 
 					// Отправляем всем клиентам очередное сообщение
 					synchronized(connections) {
 						Iterator<Connection> iter = connections.iterator();
 						while(iter.hasNext()) {
-							((Connection) iter.next()).out.println(name + ": " + str);
+                            Connection connection = iter.next();
+                            if(!connection.name.equals(name)) {
+                                connection.out.println(ANSI_RED + name + ANSI_RESET + ": " + message);
+                            }
 						}
 					}
 				}
@@ -153,7 +163,7 @@ public class Server {
 				synchronized(connections) {
 					Iterator<Connection> iter = connections.iterator();
 					while(iter.hasNext()) {
-						((Connection) iter.next()).out.println(name + " has left");
+						(iter.next()).out.println(ANSI_YELLOW + name + " выходит из чата" + ANSI_RESET);
 					}
 				}
 			} catch (IOException e) {

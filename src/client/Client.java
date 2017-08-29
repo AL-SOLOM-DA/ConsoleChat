@@ -5,9 +5,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Scanner;
 
 import main.Const;
+
+import static main.Const.ANSI_RED;
+import static main.Const.ANSI_RESET;
+import static main.Const.EXIT_CODE;
 
 /**
  * Обеспечивает работу программы в режиме клиента
@@ -25,15 +30,16 @@ public class Client {
 	 */
 	public Client() {
 		Scanner scan = new Scanner(System.in);
-
+/*
 		System.out.println("Введите IP для подключения к серверу.");
 		System.out.println("Формат: xxx.xxx.xxx.xxx");
-
 		String ip = scan.nextLine();
+*/
+        String ip = "10.116.70.65";
 
-		try {
+        try {
 			// Подключаемся в серверу и получаем потоки(in и out) для передачи сообщений
-			socket = new Socket(ip, Const.Port);
+			socket = new Socket(ip, Const.PORT);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -47,7 +53,7 @@ public class Client {
 			// Пока пользователь не введёт "exit" отправляем на сервер всё, что
 			// введено из консоли
 			String str = "";
-			while (!str.equals("exit")) {
+			while (!str.equals(EXIT_CODE)) {
 				str = scan.nextLine();
 				out.println(str);
 			}
@@ -97,9 +103,14 @@ public class Client {
 		 */
 		@Override
 		public void run() {
-			try {
-				while (!stoped) {
-					String str = in.readLine();
+            try {
+                String str = "";
+                while (!stoped) {
+				    try {
+                        str = in.readLine();
+                    } catch (SocketException e){
+                        System.out.println(ANSI_RED + "Произошло отключение от сервера!" + ANSI_RESET);
+                    }
 					System.out.println(str);
 				}
 			} catch (IOException e) {
