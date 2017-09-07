@@ -35,7 +35,7 @@ public class Client {
 		System.out.println("Формат: xxx.xxx.xxx.xxx");
 		String ip = scan.nextLine();
 */
-        String ip = "10.116.70.65";
+        String ip = "127.0.0.1";
 
         try {
 			// Подключаемся в серверу и получаем потоки(in и out) для передачи сообщений
@@ -43,7 +43,7 @@ public class Client {
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out = new PrintWriter(socket.getOutputStream(), true);
 
-			System.out.println("Введите свой ник:");
+			System.out.print("Введите свой ник:");
 			out.println(scan.nextLine());
 
 			// Запускаем вывод всех входящих сообщений в консоль
